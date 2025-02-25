@@ -1,5 +1,7 @@
 import socket
 
+from llm_functions import *
+
 SERVER_ADRESS = ('localhost', 8686)
 
 server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -7,25 +9,31 @@ server_socket.bind(SERVER_ADRESS)
 server_socket.listen(5)
 
 
-from transformers import pipeline
-classifier = pipeline("sentiment-analysis", model="michellejieli/emotion_text_classifier")
-# print(classifier("I love this!"))
+if __name__ == "__main__":
 
-print("server is running")
+    while True:
+        connection, address = server_socket.accept()
+        print(f"new connection from {address}")
 
-while True:
-    connection, adress = server_socket.accept()
-    print(f"new connection from {adress}")
+        byte_data = connection.recv(1024)
 
-    byte_data = connection.recv(1024)
-    print(byte_data)
+        text = byte_data.decode("utf-8")
 
-    decoded_data = byte_data.decode("utf-8")
-    print(decoded_data)
+        emotion = classify_emotion(text)
+        print(f"Emotion: {emotion}")
 
-    res = classifier(decoded_data)
-    print(res)
+        response = f"Emotion: {emotion}"
+        connection.send(bytes(emotion, encoding='UTF-8'))
 
-    connection.send(bytes((res[0]['label']), encoding='UTF-8'))
+        # ---------------------------------------------------------
 
-    connection.close()
+        synonyms = generate_synonyms(text)
+        synonyms = synonyms[5:]
+
+        print(f"Synonyms: {synonyms}")
+
+        response = f"Synonyms: {synonyms}"
+
+        connection.send(bytes(response, encoding='UTF-8'))
+
+        connection.close()
