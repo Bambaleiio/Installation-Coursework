@@ -1,6 +1,7 @@
 import socket
 
 from llm_functions import *
+from extra import *
 
 SERVER_ADRESS = ('localhost', 8686)
 
@@ -20,9 +21,12 @@ if __name__ == "__main__":
         text = byte_data.decode("utf-8")
 
         emotion = classify_emotion(text)
+
+        emotion = remove_punctuation(emotion)
+
         print(f"Emotion: {emotion}")
 
-        response = f"Emotion: {emotion}"
+        response = f"Emotion: {emotion}\n"
         connection.send(bytes(emotion, encoding='UTF-8'))
 
         # ---------------------------------------------------------
@@ -32,7 +36,7 @@ if __name__ == "__main__":
 
         print(f"Synonyms: {synonyms}")
 
-        response = f"Synonyms: {synonyms}"
+        response = f"{synonyms}\n"
 
         connection.send(bytes(response, encoding='UTF-8'))
 

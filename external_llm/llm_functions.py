@@ -1,10 +1,11 @@
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
-
 from huggingface_hub import login
 
 import os
 from dotenv import load_dotenv, dotenv_values
+
+from extra import clean_line
 
 load_dotenv()
 
@@ -46,22 +47,21 @@ def classify_emotion(text):
 
 def generate_synonyms(text):
     prompt = (
-        f"Provide synonyms for the following text.\n"
-        f"Text: \"{text}\"\n\n"
-        "Return only the synonyms, one per line, with no additional commentary."
+        "Provide synonyms for the following text, one per line, with no extra commentary.\n\n"
+        f"Text: \"{text}\"\n"
     )
 
-    # Tokenize and move to GPU
     inputs = tokenizer(prompt, return_tensors="pt").to("cuda")
 
     outputs = model.generate(
         **inputs,
-        max_new_tokens=200,
+        max_new_tokens=100,
         do_sample=True,
         temperature=0.8
     )
 
     response = tokenizer.decode(outputs[0], skip_special_tokens=True).strip()
+    lines = [line.strip() for line in response.split("\n") if line.strip()]
 
-    synonyms_lines = [line.strip() for line in response.split("\n") if line.strip()]
-    return synonyms_lines
+    synonyms = [clean_line(line) for line in lines]
+    return synonyms
