@@ -1,5 +1,6 @@
 logs/
 TDLibs/
 TDImportCache/
+.env
 
 requirements*
