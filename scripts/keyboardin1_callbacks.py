@@ -26,6 +26,8 @@
 
 def onKey(dat, keyInfo):
     if not ui.performMode: return
+
+    if not op('select1')['done'][0]: return
     
     state = keyInfo.state
     key = keyInfo.key
@@ -39,6 +41,10 @@ def onKey(dat, keyInfo):
         textOp.text = ''
         return
 
+    if (key == 'space'):
+        textOp.text += ' '
+        return True
+
     if (key == 'backspace'):
         if len(textOp.text):
             textOp.text = textOp.text[:-1]
@@ -48,6 +54,7 @@ def onKey(dat, keyInfo):
         debug(f'Sent message: {textOp.text}')
         op.LLMHandler.SendToLLM(textOp.text)
         textOp.clear()
+        op('timer1').par.start.pulse()
         return
     
     textOp.text += character

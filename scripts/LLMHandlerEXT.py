@@ -33,14 +33,19 @@ class LLMHandlerEXT:
         sentences = self.generateSentences(text, self.ownerComp.par.Sentencesnum)
 
         for sentence in sentences.splitlines():
-            sentence = re.sub("^[1-9]+:", "", sentence)
+            sentence = re.sub("^[1-9]+:", "", sentence).strip()
             opSentences.appendRow(sentence)
+
 
         debug(sentences)
 
+        op.StateManager.Call_Preset(emotion)
+        op.CONVERTSTR.UpdateString()        
+
 
     def getEmotion(self, text) -> str:
-        emotions = ["Грусть", "Радость", "Злость", "Нейтральное", "Отвращение", "Скука"]
+        # emotions = ["Грусть", "Радость", "Злость", "Нейтральное", "Отвращение", "Скука"]
+        emotions = ["neutral", "fear", "anger", "calm", "sadness", "joy"]
 
         model = self.sdk.models.text_classifiers("yandexgpt").configure(
             task_description="определи эмоцию текста",
