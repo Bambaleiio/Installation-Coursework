@@ -1,20 +1,18 @@
 import os
-from enum import Enum
 from typing import Callable
+from _LLM_Type import _LLM_Type
 from LocalLLMHandler import LocalLLMHandler
 from ServerLLMHandler import ServerLLMHandler
+from InternetLLMHandler import InternetLLMHandler
 from __LLM_Parameneter_Folders import _LLM_Parameneter_Folders
 
 os.environ['HF_HUB_DISABLE_SYMLINKS_WARNING'] = '1'
 
-class _LLM_Type(Enum):
-    local = 0
-    server = 1
-
 class _LLM_Type_t:
     _dict: dict[_LLM_Type, type] = {
         _LLM_Type.local : LocalLLMHandler,
-        _LLM_Type.server : ServerLLMHandler
+        _LLM_Type.server : ServerLLMHandler,
+        _LLM_Type.internet : InternetLLMHandler
     }
 
     @staticmethod
@@ -32,17 +30,26 @@ class GeneralLLM:
     def _llm_type(_f : Callable) -> None:
         def _w(*args, **kwargs) -> None:
             _l = _LLM_Parameneter_Folders
-            _server : bool = _l.ActivateServerLlm()
-            _local : bool = _l.ActivateLocalLlm()
-            if _server and _local:
+            _AllStatus : dict[_LLM_Type, bool] = _l.AllActivationLLMStatus()
+
+            if(all(not _s for _s in _AllStatus.values())):
                 GeneralLLM._cur_LLM_Type = _LLM_Type.local
+                _l._ActivateLocalLlm.val = True
                 _l._ActivateServerLlm.val = False
-            elif _server:
-                GeneralLLM._cur_LLM_Type = _LLM_Type.server
-                _l._ActivateLocalLlm.val = False
+                _l._ActivateInternetLlm.val = False
             else:
-                GeneralLLM._cur_LLM_Type = _LLM_Type.local
-                _l._ActivateServerLlm.val = False
+                if _AllStatus.get(_LLM_Type.local, False):
+                    GeneralLLM._cur_LLM_Type = _LLM_Type.local
+                    _l._ActivateServerLlm.val = False
+                    _l._ActivateInternetLlm.val = False
+                elif _AllStatus.get(_LLM_Type.server, False):
+                    GeneralLLM._cur_LLM_Type = _LLM_Type.server
+                    _l._ActivateLocalLlm.val = False
+                    _l._ActivateInternetLlm.val = False
+                elif _AllStatus.get(_LLM_Type.internet, False):
+                    GeneralLLM._cur_LLM_Type = _LLM_Type.internet
+                    _l._ActivateLocalLlm.val = False
+                    _l._ActivateServerLlm.val = False
 
             return _f(*args, **kwargs)
         return _w

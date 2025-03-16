@@ -12,6 +12,7 @@ class _onPulseConfig:
 
     _DownloadPythonLibs : str = "Downloadpythonlibs"
     _DownloadServerPythonLibs : str = "Downloadserverpythonlibs"
+    _DownloadInternetPythonLibs : str = "Downloadpythoninternet"
 
     _StartServer : str = "Startserver"
     _ConnectServer : str = "Connectserver"
@@ -60,6 +61,7 @@ class _onPulse:
 
             _d[_c._DownloadPythonLibs] = _DownloadPythonLibs
             _d[_c._DownloadServerPythonLibs] = _DownloadPythonLibs
+            _d[_c._DownloadInternetPythonLibs] = _DownloadPythonLibs
 
             _d[_c._ConnectServer] = _ConnectServer
             _d[_c._TeminateServer] = _TeminateServer

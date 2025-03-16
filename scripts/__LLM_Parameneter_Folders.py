@@ -1,10 +1,14 @@
 from typing import Callable
+from _LLM_Type import _LLM_Type
 
 class _LLM_Parameneter_Folders:
     _Parent = None
 
     _ActivateLocalLlm = None
     _ActivateServerLlm = None
+    _ActivateInternetLlm = None
+
+    _InternetLLMBase = None
 
     _Connected = None
     _ServerLaunched = None
@@ -27,6 +31,12 @@ class _LLM_Parameneter_Folders:
 
             if(not _l._ActivateLocalLlm):
                 _l._ActivateLocalLlm = _l._Parent.Activatelocalllm
+
+            if(not _l._ActivateInternetLlm):
+                _l._ActivateInternetLlm = _l._Parent.Activateinternetllm
+
+            if(not _l._InternetLLMBase):
+                _l._InternetLLMBase = _l._Parent.Llmbase
 
             if(not _l._NetworkAddress):
                 _l._NetworkAddress = _l._Parent.Networkaddress
@@ -57,6 +67,12 @@ class _LLM_Parameneter_Folders:
     def ActivateServerLlm() -> bool:
         _l = _LLM_Parameneter_Folders
         return bool(_l._ActivateServerLlm.eval())
+
+    @set_all_par
+    @staticmethod
+    def InternetLLMBase() -> str:
+        _l = _LLM_Parameneter_Folders
+        return str(_l._InternetLLMBase.eval())
 
     @set_all_par
     @staticmethod
@@ -99,5 +115,15 @@ class _LLM_Parameneter_Folders:
     def set_ServerLaunched(value : bool = False) -> None:
         _l = _LLM_Parameneter_Folders
         _l._ServerLaunched.val = bool(value)
+
+    @set_all_par
+    @staticmethod
+    def AllActivationLLMStatus() -> dict[_LLM_Type,bool]:
+        _l = _LLM_Parameneter_Folders
+        return {
+            _LLM_Type.local : bool(_l._ActivateLocalLlm.eval()),
+            _LLM_Type.server : bool(_l._ActivateServerLlm.eval()),
+            _LLM_Type.internet : bool(_l._ActivateInternetLlm.eval()),
+        }
 
 
