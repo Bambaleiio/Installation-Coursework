@@ -1,0 +1,74 @@
+<script>
+    const serverURL = window.location.origin;
+    let elementMap = new Map();
+    let tagCounters = { input: 0, button: 0 };
+
+    function generateElementName(element) {
+        const tag = element.tagName.toLowerCase();
+        if (!element.id) {
+            tagCounters[tag] = (tagCounters[tag] || 0) + 1;
+            return `${tag}_${tagCounters[tag]}`;
+        }
+        return element.id;
+    }
+
+    function initializeElementMap() {
+        document.querySelectorAll('input, button').forEach(element => {
+            const name = generateElementName(element);
+            elementMap.set(element, name);
+        });
+    }
+
+    function getAllElementsState() {
+        const state = {};
+        elementMap.forEach((name, element) => {
+            state[name] = getElementValue(element);
+        });
+        return state;
+    }
+
+    function getElementValue(element) {
+        if (element.tagName === 'BUTTON') {
+            return element.textContent.trim();
+        }
+        if (element.type === 'checkbox' || element.type === 'radio') {
+            return element.checked;
+        }
+        return element.value;
+    }
+
+    const sendAllData = (() => {
+        let timeoutId;
+        let lastStateJSON = '';
+
+        return () => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                const currentState = getAllElementsState();
+                const currentStateJSON = JSON.stringify(currentState);
+
+                if (currentStateJSON !== lastStateJSON) {
+                    fetch(`${serverURL}/data`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: currentStateJSON
+                    }).catch(console.error);
+                    lastStateJSON = currentStateJSON;
+                }
+            }, 50);
+        };
+    })();
+    function setup() {
+        initializeElementMap();
+
+        document.querySelectorAll('input, button').forEach(element => {
+            const eventType = element.tagName === 'BUTTON' ? 'click' :
+                            element.type === 'checkbox' || element.type === 'radio' ? 'change' :
+                            'input';
+
+            element.addEventListener(eventType, sendAllData);
+        });
+        sendAllData();
+    }
+    document.addEventListener('DOMContentLoaded', setup);
+</script>

@@ -57,6 +57,7 @@ class _OnChangeStr:
     _Port : str = "Port"
     _Activate : str = "Activate"
     _QRAutoUpdate : str = "Autoupdate"
+    _Intergrateddatasender : str = "Intergrateddatasender"
 
 class _OnChangeConfig:
     _FunctionDict : dict[str, Callable] | None = None
@@ -78,6 +79,10 @@ class _OnChangeConfig:
                 if(_ParentInput.AutoUpdate()):
                     QRCode.generate_server_url()
 
+            def DataSerner(par, prev) -> None:
+                _WebServer.set_IntegratedSerder(_ParentInput.IntergratedDataSender())
+
+            _d[_c._Intergrateddatasender] = DataSerner
             _d[_c._Port] = Port
             _d[_c._Activate] = Activate
 
@@ -99,6 +104,7 @@ class _ParentInput:
     _Port = None
 
     _QRAutoUpdate = None
+    _Intergrateddatasender = None
 
     @staticmethod
     def set_all_par(_f : Callable) -> None:
@@ -117,6 +123,8 @@ class _ParentInput:
             if(not _pi._QRAutoUpdate):
                 _pi._QRAutoUpdate = _pi._Parent.Autoupdate
 
+            if(not _pi._Intergrateddatasender):
+                _pi._Intergrateddatasender = _pi._Parent.Intergrateddatasender
 
             return _f(*args, **kwargs)
         return _w
@@ -130,6 +138,11 @@ class _ParentInput:
     @staticmethod
     def AutoUpdate() -> bool:
         return bool(_ParentInput._QRAutoUpdate.eval())
+
+    @set_all_par
+    @staticmethod
+    def IntergratedDataSender() -> bool:
+        return bool(_ParentInput._Intergrateddatasender.eval())
 
     @staticmethod
     def on_pulse(par) -> None:

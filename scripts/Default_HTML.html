@@ -130,58 +130,5 @@
         <input type="text" class="text-input" id="myInput" placeholder="Enter text...">
         <button class="button" id="myButton">Action</button>
     </div>
-
-    <script>
-        const slider = document.getElementById('mySlider');
-        const button = document.getElementById('myButton');
-        const textInput = document.getElementById('myInput');
-        const serverURL = 'http://localhost:9980'; // Match your Web Server DAT port
-
-        // Send data to TouchDesigner
-        async function sendData(data) {
-            try {
-                const response = await fetch(`${serverURL}/data`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
-                if (!response.ok) throw new Error('Network response was not ok');
-                console.log("Data sent")
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
-
-        // Slider input handler
-        slider.addEventListener('input', (e) => {
-            sendData({
-                type: 'slider',
-                value: e.target.value
-            });
-        });
-
-        // Text input handler (with debounce)
-        let textTimeout;
-        textInput.addEventListener('input', (e) => {
-            clearTimeout(textTimeout);
-            textTimeout = setTimeout(() => {
-                sendData({
-                    type: 'text',
-                    value: e.target.value
-                });
-            }, 300);
-        });
-
-        // Button click handler
-        button.addEventListener('click', () => {
-            sendData({
-                type: 'button',
-                sliderValue: slider.value,
-                textValue: textInput.value
-            });
-        });
-    </script>
 </body>
 </html>
