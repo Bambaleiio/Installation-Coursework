@@ -2,15 +2,21 @@ from typing import Callable
 from __Input import _Input
 import json
 import re
+import subprocess
 
 class _WebServer:
     _OP = None
-
-    _ServerLocation : str = "http://localhost"
     _OPName : str = "webServer"
+
+    _localhost : str = "localhost"
     _RequestOutputStr : str = "__RequestData"
     _RequestOutput = None
+
     _IntegratedSerder : bool = True
+    _IntegratedSerderStr : str = "__DataSender"
+    _OPIntegratedSerder = None
+
+    _IPConfigIncoding : str = "cp437"
 
     @staticmethod
     def _set_op(_f : Callable) -> None:
@@ -21,13 +27,36 @@ class _WebServer:
             if(not _WebServer._RequestOutput):
                 _WebServer._RequestOutput = op(_WebServer._RequestOutputStr)
 
+            if(not _WebServer._OPIntegratedSerder):
+                _WebServer._OPIntegratedSerder = op(_WebServer._IntegratedSerderStr)
+
             return _f(*args, **kwargs)
         return _w
+
+    @staticmethod
+    def get_local_ip_address() -> str:
+        try:
+            output: str = subprocess.check_output('ipconfig', encoding=_WebServer._IPConfigIncoding)
+        except subprocess.CalledProcessError:
+            return _WebServer._localhost
+
+        ip_pattern: re.Pattern[str] = re.compile(
+            r'IPv4[^:]*:[^\d]*(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})',
+            re.IGNORECASE
+        )
+        ips: list[str] = ip_pattern.findall(output)
+
+        filtered_ips: list[str] = [
+            ip for ip in ips
+            if not ip.startswith('127.') and not ip.startswith('169.254.')
+        ]
+
+        return filtered_ips[0] if filtered_ips else _WebServer._localhost
 
     @_set_op
     @staticmethod
     def get_server_location() -> str:
-        return f"http://localhost:{str(_WebServer._OP.par.port)}/"
+        return f"http://{str(_WebServer.get_local_ip_address())}:{str(_WebServer._OP.par.port)}/"
 
     @staticmethod
     def _set_status(response : dict) -> dict:
@@ -63,7 +92,7 @@ class _WebServer:
             else:
                 response["data"] += f"\n{inject_content}\n</body></html>"
         except Exception as e:
-            response["data"] += "\n<!-- Injection Error -->"
+            response["data"] += "\n<!-- Inegrated Data Sender: Injection Error -->"
 
         return response
 

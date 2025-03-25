@@ -1,7 +1,13 @@
 <script>
     const serverURL = window.location.origin;
     let elementMap = new Map();
-    let tagCounters = { input: 0, button: 0 };
+    let tagCounters = {
+        input: 0,
+        button: 0,
+        select: 0,
+        textarea: 0
+    };
+    const clickCounts = new WeakMap();
 
     function generateElementName(element) {
         const tag = element.tagName.toLowerCase();
@@ -13,9 +19,12 @@
     }
 
     function initializeElementMap() {
-        document.querySelectorAll('input, button').forEach(element => {
+        document.querySelectorAll('input, button, select, textarea').forEach(element => {
             const name = generateElementName(element);
             elementMap.set(element, name);
+            if (element.tagName === 'BUTTON') {
+                clickCounts.set(element, 0);
+            }
         });
     }
 
@@ -28,13 +37,29 @@
     }
 
     function getElementValue(element) {
-        if (element.tagName === 'BUTTON') {
-            return element.textContent.trim();
+        const tag = element.tagName.toLowerCase();
+        const type = element.type;
+
+        switch(true) {
+            case tag === 'button':
+                return clickCounts.get(element) || 0;
+
+            case tag === 'select':
+                return element.value;
+
+            case tag === 'textarea':
+                return element.value;
+
+            case type === 'checkbox':
+                return element.checked;
+
+            case type === 'number':
+            case type === 'range':
+                return parseInt(element.value) || 0;
+
+            default:
+                return element.value;
         }
-        if (element.type === 'checkbox' || element.type === 'radio') {
-            return element.checked;
-        }
-        return element.value;
     }
 
     const sendAllData = (() => {
@@ -58,17 +83,28 @@
             }, 50);
         };
     })();
+
     function setup() {
         initializeElementMap();
 
-        document.querySelectorAll('input, button').forEach(element => {
-            const eventType = element.tagName === 'BUTTON' ? 'click' :
-                            element.type === 'checkbox' || element.type === 'radio' ? 'change' :
-                            'input';
+        document.querySelectorAll('input, button, select, textarea').forEach(element => {
+            const eventType =
+                element.tagName === 'BUTTON' ? 'click' :
+                element.type === 'checkbox' ? 'change' :
+                element.tagName === 'SELECT' ? 'change' :
+                element.tagName === 'TEXTAREA' ? 'input' :
+                'input';
 
-            element.addEventListener(eventType, sendAllData);
+            element.addEventListener(eventType, function(e) {
+                if (element.tagName === 'BUTTON') {
+                    const count = clickCounts.get(element) || 0;
+                    clickCounts.set(element, count + 1);
+                }
+                sendAllData();
+            });
         });
         sendAllData();
     }
+
     document.addEventListener('DOMContentLoaded', setup);
 </script>

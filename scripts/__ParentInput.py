@@ -36,7 +36,7 @@ class _OnPulseConfig:
                 QRCode.download_libs()
 
             def Help(par) -> None:
-                print("Not emplemented")
+                webbrowser.open("https://github.com/Bambaleiio/Installation-Coursework/blob/web-site-input/README.md")
 
             _d[_p._CreateQR] = CreateQR
             _d[_p._OpenServer] = OpenServer
@@ -75,7 +75,7 @@ class _OnChangeConfig:
                 _WebServer.activate(_ParentInput.activate())
 
             def Port(par, prev) -> None:
-                _WebServer.set_port(int(_ParentInput._Port.eval()))
+                _WebServer.set_port(_ParentInput.get_port())
                 if(_ParentInput.AutoUpdate()):
                     QRCode.generate_server_url()
 
@@ -133,6 +133,11 @@ class _ParentInput:
     @staticmethod
     def activate() -> bool:
         return bool(_ParentInput._Activate.eval())
+
+    @set_all_par
+    @staticmethod
+    def get_port() -> int:
+        return int(_ParentInput._Port.eval())
 
     @set_all_par
     @staticmethod
