@@ -1,0 +1,110 @@
+<script>
+    const serverURL = window.location.origin;
+    let elementMap = new Map();
+    let tagCounters = {
+        input: 0,
+        button: 0,
+        select: 0,
+        textarea: 0
+    };
+    const clickCounts = new WeakMap();
+
+    function generateElementName(element) {
+        const tag = element.tagName.toLowerCase();
+        if (!element.id) {
+            tagCounters[tag] = (tagCounters[tag] || 0) + 1;
+            return `${tag}_${tagCounters[tag]}`;
+        }
+        return element.id;
+    }
+
+    function initializeElementMap() {
+        document.querySelectorAll('input, button, select, textarea').forEach(element => {
+            const name = generateElementName(element);
+            elementMap.set(element, name);
+            if (element.tagName === 'BUTTON') {
+                clickCounts.set(element, 0);
+            }
+        });
+    }
+
+    function getAllElementsState() {
+        const state = {};
+        elementMap.forEach((name, element) => {
+            state[name] = getElementValue(element);
+        });
+        return state;
+    }
+
+    function getElementValue(element) {
+        const tag = element.tagName.toLowerCase();
+        const type = element.type;
+
+        switch(true) {
+            case tag === 'button':
+                return clickCounts.get(element) || 0;
+
+            case tag === 'select':
+                return element.value;
+
+            case tag === 'textarea':
+                return element.value;
+
+            case type === 'checkbox':
+                return element.checked;
+
+            case type === 'number':
+            case type === 'range':
+                return parseInt(element.value) || 0;
+
+            default:
+                return element.value;
+        }
+    }
+
+    const sendAllData = (() => {
+        let timeoutId;
+        let lastStateJSON = '';
+
+        return () => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                const currentState = getAllElementsState();
+                const currentStateJSON = JSON.stringify(currentState);
+
+                if (currentStateJSON !== lastStateJSON) {
+                    fetch(`${serverURL}/data`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: currentStateJSON
+                    }).catch(console.error);
+                    lastStateJSON = currentStateJSON;
+                }
+            }, 50);
+        };
+    })();
+
+    function setup() {
+        initializeElementMap();
+
+        document.querySelectorAll('input, button, select, textarea').forEach(element => {
+            const eventType =
+                element.tagName === 'BUTTON' ? 'click' :
+                element.type === 'checkbox' ? 'change' :
+                element.tagName === 'SELECT' ? 'change' :
+                element.tagName === 'TEXTAREA' ? 'input' :
+                'input';
+
+            element.addEventListener(eventType, function(e) {
+                if (element.tagName === 'BUTTON') {
+                    const count = clickCounts.get(element) || 0;
+                    clickCounts.set(element, count + 1);
+                }
+                sendAllData();
+            });
+        });
+        sendAllData();
+    }
+
+    document.addEventListener('DOMContentLoaded', setup);
+</script>
