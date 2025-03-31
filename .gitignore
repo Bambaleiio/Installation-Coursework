@@ -3,4 +3,7 @@ TDLibs/
 TDImportCache/
 .env
 
+visual-effects/Models/*
+visual-effects/misc/*
+
 requirements*
