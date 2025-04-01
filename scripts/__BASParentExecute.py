@@ -58,7 +58,7 @@ class _OnChangeConfig:
 			_d[_c._Blendtime] = BlendTime
 			_d[_c._AudioFileName] = AudioFile
 			_d[_c._Repeat] = Repeat
-
+			return _f(*args, **kwargs)
 		return _w
 
 	@_define_dict
