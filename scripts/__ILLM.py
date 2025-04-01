@@ -19,20 +19,23 @@ class _YandexGPT(_ILLMBase):
     ]
 
     @staticmethod
-    def _setup(_f : Callable):
+    def _setup(_f : Callable) -> None:
         def _w(*args, **kwargs) -> None:
             if(_YandexGPT._sdk and _YandexGPT._model): return _f(*args, **kwargs)
 
-            from yandex_cloud_ml_sdk import YCloudML
-            _YandexGPT._sdk = YCloudML(
-                folder_id="b1gn9g5fsd5bs56st43c",
-                auth="AQVN37WoB-A3bZ0YXKvNZrZi038J1LFwuimWjhSh"
-            )
+            try:
+                from yandex_cloud_ml_sdk import YCloudML
+                _YandexGPT._sdk = YCloudML(
+                    folder_id=_lpf.get_folder_id(),
+                    auth=_lpf.get_auth()
+                )
 
-            _YandexGPT._model = _YandexGPT._sdk.models.text_classifiers(_YandexGPT._TextClassifier).configure(
-                task_description="определи эмоцию текста",
-                labels=_YandexGPT._AllEmotes
-            )
+                _YandexGPT._model = _YandexGPT._sdk.models.text_classifiers(_YandexGPT._TextClassifier).configure(
+                    task_description="определи эмоцию текста",
+                    labels=_YandexGPT._AllEmotes
+                )
+            except Exception as e:
+                print(e)
 
             return _f(*args, **kwargs)
         return _w

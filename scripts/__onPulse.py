@@ -1,6 +1,7 @@
 import webbrowser
 from typing import Callable
 from GeneralLLM import GeneralLLM
+from _LLM_Type import _LLM_Type
 from __Server import _Server
 from __LLM_Parameneter_Input import _LLM_Parameneter_Input as _lpi
 
@@ -17,6 +18,10 @@ class _onPulseConfig:
     _StartServer : str = "Startserver"
     _ConnectServer : str = "Connectserver"
     _TeminateServer : str = "Teminateserver"
+
+    _ActivateLocalLlm : str = "Activatelocalllm"
+    _ActivateServerLlm : str = "Activateserverlllm"
+    _ActivateInternetLlm : str = "Activateinternetllm"
 
     _ReadMe : str = "Readme"
 
@@ -55,9 +60,22 @@ class _onPulse:
             def _ConnectServer(par) -> None:
                 GeneralLLM.connect()
 
+            def _LocalLLM(par) -> None:
+                GeneralLLM.llm_type(_LLM_Type.local)
+
+            def _ServerLLM(par) -> None:
+                GeneralLLM.llm_type(_LLM_Type.server)
+
+            def _InternetLLM(par) -> None:
+                GeneralLLM.llm_type(_LLM_Type.internet)
+
             _d[_c._ParseSingleWord] = _ParseSingleWord
 
             _d[_c._UpdateTable] = _UpdateTable
+
+            _d[_c._ActivateLocalLlm] = _LocalLLM
+            _d[_c._ActivateServerLlm] = _ServerLLM
+            _d[_c._ActivateInternetLlm] = _InternetLLM
 
             _d[_c._DownloadPythonLibs] = _DownloadPythonLibs
             _d[_c._DownloadServerPythonLibs] = _DownloadPythonLibs

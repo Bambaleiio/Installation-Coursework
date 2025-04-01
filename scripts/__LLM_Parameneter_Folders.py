@@ -4,10 +4,6 @@ from _LLM_Type import _LLM_Type
 class _LLM_Parameneter_Folders:
     _Parent = None
 
-    _ActivateLocalLlm = None
-    _ActivateServerLlm = None
-    _ActivateInternetLlm = None
-
     _InternetLLMBase = None
 
     _Connected = None
@@ -18,6 +14,9 @@ class _LLM_Parameneter_Folders:
     _NetworkAddress = None
     _Port = None
 
+    _FolderId = None
+    _Auth = None
+
 
     @staticmethod
     def set_all_par(_f : Callable) -> None:
@@ -25,15 +24,6 @@ class _LLM_Parameneter_Folders:
             _l = _LLM_Parameneter_Folders
             if(not _l._Parent):
                 _l._Parent = parent().par
-
-            if(not _l._ActivateServerLlm):
-                _l._ActivateServerLlm = _l._Parent.Activateserverlllm
-
-            if(not _l._ActivateLocalLlm):
-                _l._ActivateLocalLlm = _l._Parent.Activatelocalllm
-
-            if(not _l._ActivateInternetLlm):
-                _l._ActivateInternetLlm = _l._Parent.Activateinternetllm
 
             if(not _l._InternetLLMBase):
                 _l._InternetLLMBase = _l._Parent.Llmbase
@@ -53,20 +43,14 @@ class _LLM_Parameneter_Folders:
             if(not _l._Serverfile):
                 _l._Serverfile = _l._Parent.Serverfile
 
+            if(not _l._FolderId):
+                _l._FolderId = _l._Parent.Folderid
+
+            if(not _l._Auth):
+                _l._Auth = _l._Parent.Auth
+
             return _f(*args, **kwargs)
         return _w
-
-    @set_all_par
-    @staticmethod
-    def ActivateLocalLlm() -> bool:
-        _l = _LLM_Parameneter_Folders
-        return bool(_l._ActivateLocalLlm.eval())
-
-    @set_all_par
-    @staticmethod
-    def ActivateServerLlm() -> bool:
-        _l = _LLM_Parameneter_Folders
-        return bool(_l._ActivateServerLlm.eval())
 
     @set_all_par
     @staticmethod
@@ -125,5 +109,17 @@ class _LLM_Parameneter_Folders:
             _LLM_Type.server : bool(_l._ActivateServerLlm.eval()),
             _LLM_Type.internet : bool(_l._ActivateInternetLlm.eval()),
         }
+
+    @set_all_par
+    @staticmethod
+    def get_folder_id() -> str:
+        _l = _LLM_Parameneter_Folders
+        return str(_l._FolderId.eval())
+
+    @set_all_par
+    @staticmethod
+    def get_auth() -> str:
+        _l = _LLM_Parameneter_Folders
+        return str(_l._Auth.eval())
 
 
