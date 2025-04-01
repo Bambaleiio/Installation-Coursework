@@ -12,7 +12,7 @@ class QRCode:
     ]
     _QRLib : str = "qrcode"
     _OPName: str = "QROut"
-    _TempPath: Path = Path(tempfile.gettempdir()) / "WebSerberInputQRcode.png"
+    _TempPath: Path = Path(tempfile.gettempdir()) / "WebServerInputQRcode.png"
 
     @staticmethod
     def _set_op(func: callable) -> callable:
@@ -42,7 +42,7 @@ class QRCode:
             QRCode._OP.par.file = str(QRCode._TempPath)
             QRCode._OP.par.reload.pulse()
         except Exception as e:
-            debug(e)
+            print(e)
 
     @_set_op
     @staticmethod
@@ -60,3 +60,15 @@ class QRCode:
     def download_libs() -> None:
         for lib in QRCode._Libs:
             _TD_PIP.install_module(lib)
+
+    @_set_op
+    @staticmethod
+    def delete_qr() -> None:
+        try:
+            if QRCode._TempPath.exists():
+                QRCode._TempPath.unlink()
+
+            QRCode._OP.par.file = ""
+            QRCode._OP.par.reload.pulse()
+        except Exception as e:
+            print(e)
