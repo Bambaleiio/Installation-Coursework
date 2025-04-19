@@ -1,0 +1,8 @@
+logs/
+TDLibs/
+TDImportCache/
+Backup/*
+site-packages/
+.env
+
+requirements*
